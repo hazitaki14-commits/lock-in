@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090b">
+<title>LOCK IN</title>
+<style>
+*{box-sizing:border-box}html{background:#08090b}body{margin:0;background:linear-gradient(145deg,#08090b,#101216);color:#f5f5f5;font-family:Inter,system-ui,-apple-system,sans-serif;min-height:100vh}
+.app{max-width:520px;margin:auto;padding:20px 16px 100px;animation:page .45s ease}
+@keyframes page{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.top{display:flex;justify-content:space-between;align-items:center}.logo{font-size:27px;font-weight:950;letter-spacing:3px}.pill{padding:7px 10px;border:1px solid #292c32;border-radius:99px;color:#bbb;font-size:12px}
+.hero{margin-top:14px;background:linear-gradient(135deg,#17191e,#101114);border:1px solid #292c32;border-radius:24px;padding:20px;box-shadow:0 14px 40px #0005}
+.hero small,.muted{color:#92959b;font-size:12px}.xp{font-size:58px;font-weight:950;letter-spacing:-3px;margin-top:2px}.bar{height:8px;background:#272a2f;border-radius:99px;overflow:hidden;margin-top:12px}.fill{height:100%;width:0;background:#f5f5f5;border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.row{display:flex;justify-content:space-between;align-items:center}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}.stat{background:#121418;border:1px solid #24272d;border-radius:17px;padding:13px;text-align:center}.stat b{display:block;font-size:21px}.stat span{color:#858990;font-size:11px}
+h2{font-size:15px;letter-spacing:1px;margin:22px 2px 10px}.habit,.exercise{display:flex;align-items:center;gap:12px;background:#111318;border:1px solid #25282e;border-radius:17px;padding:14px;margin:8px 0;transition:transform .15s,background .2s,border .2s}.habit:active,.exercise:active{transform:scale(.975)}.habit.done{background:#171a1d;border-color:#5a5d63}.check{width:25px;height:25px;border:2px solid #555b64;border-radius:8px;flex:none;transition:.25s}.done .check{background:#f5f5f5;border-color:#f5f5f5;transform:scale(1.08)}.done .check:after{content:"✓";color:#08090b;font-weight:950;display:block;text-align:center;line-height:21px}.habit b,.exercise b{font-size:13px}.habit span,.exercise span{display:block;color:#858990;font-size:11px;margin-top:3px}
+button{border:0;border-radius:15px;padding:14px;background:#f5f5f5;color:#08090b;font-weight:900;font-size:13px;width:100%;transition:transform .15s,opacity .15s}button:active{transform:scale(.97)}button.dark{background:#17191d;color:#ddd;border:1px solid #292c32}
+.page{display:none;animation:page .35s ease}.page.active{display:block}.nav{position:fixed;bottom:0;left:0;right:0;background:#0b0c0eeF;border-top:1px solid #22252a;padding:9px max(12px,calc((100vw - 520px)/2 + 12px));display:grid;grid-template-columns:repeat(3,1fr);gap:7px;z-index:5}.nav button{background:#14161a;color:#8d9198;padding:11px}.nav button.active{background:#f5f5f5;color:#08090b}
+.day{display:flex;gap:7px;overflow:auto;padding:2px 1px 5px}.day div{min-width:64px;text-align:center;background:#121418;border:1px solid #25282e;border-radius:14px;padding:9px 5px;font-size:11px;color:#999}.day .today{border-color:#eee;color:#fff}.day b{display:block;font-size:12px;margin-bottom:3px}
+.schedule{background:#111318;border:1px solid #25282e;border-radius:18px;padding:14px}.schedule .item{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #22252a;font-size:12px}.schedule .item:last-child{border:0}.tag{color:#aaa}
+.exercise{cursor:pointer}.exercise .num{width:27px;height:27px;border-radius:9px;background:#202329;display:grid;place-items:center;font-size:11px;font-weight:900}.exercise.done{opacity:.6}.exercise.done .num{background:#f5f5f5;color:#000}
+.big{font-size:32px;font-weight:950}.rank{font-size:14px;color:#aaa;margin-top:3px}
+.toast{position:fixed;left:50%;bottom:83px;transform:translate(-50%,20px);background:#f5f5f5;color:#08090b;padding:11px 16px;border-radius:99px;font-size:12px;font-weight:900;opacity:0;pointer-events:none;transition:.25s;z-index:10}.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div class="logo">LOCK IN</div><div class="pill" id="level">LEVEL 1</div></div>
+
+<section id="home" class="page active">
+<div class="hero">
+<small>TODAY'S PROGRESS</small><div class="xp" id="xp">0 XP</div>
+<div class="bar"><div class="fill" id="xpbar"></div></div>
+<div class="row muted" style="margin-top:9px"><span id="next">0 / 250 XP</span><span id="pct">0%</span></div>
+</div>
+<div class="stats"><div class="stat"><b id="streak">0</b><span>DAY STREAK</span></div><div class="stat"><b id="rank">D</b><span>RANK</span></div><div class="stat"><b id="week">0%</b><span>TODAY</span></div></div>
+<h2>THIS WEEK</h2>
+<div class="day" id="days"></div>
+<h2>TODAY</h2><div id="habits"></div>
+</section>
+
+<section id="workout" class="page">
+<h2>WEEKLY PLAN</h2>
+<div class="schedule">
+<div class="item"><b>MON</b><span class="tag">Strength + legs</span></div>
+<div class="item"><b>TUE</b><span class="tag">Football training</span></div>
+<div class="item"><b>WED</b><span class="tag">Rest / easy movement</span></div>
+<div class="item"><b>THU</b><span class="tag">Strength + legs</span></div>
+<div class="item"><b>FRI</b><span class="tag">Optional light activity</span></div>
+<div class="item"><b>SAT</b><span class="tag">Rest + recovery</span></div>
+<div class="item"><b>SUN</b><span class="tag">Football match</span></div>
+</div>
+<h2>FULL BODY A</h2>
+<div class="muted">Focus on good form. You do not need to train to failure.</div>
+<div id="exercises"></div>
+<button onclick="finishWorkout()">FINISH WORKOUT · +50 XP</button>
+</section>
+
+<section id="progress" class="page">
+<h2>YOUR PROGRESS</h2>
+<div class="hero"><div class="muted">TOTAL XP</div><div class="big" id="totalxp">0</div><div class="rank" id="progrank">Rank D</div></div>
+<div class="stats"><div class="stat"><b id="best">0</b><span>BEST STREAK</span></div><div class="stat"><b id="completed">0</b><span>HABITS DONE</span></div><div class="stat"><b id="level2">1</b><span>LEVEL</span></div></div>
+<h2>RANKS</h2><div class="schedule">
+<div class="item"><b>D</b><span>0 XP</span></div><div class="item"><b>C</b><span>500 XP</span></div><div class="item"><b>B</b><span>1,500 XP</span></div><div class="item"><b>A</b><span>3,000 XP</span></div><div class="item"><b>S</b><span>5,000 XP</span></div>
+</div>
+<button class="dark" style="margin-top:12px" onclick="resetAll()">RESET PROGRESS</button>
+</section>
+</div>
+<div class="nav"><button class="active" onclick="show('home',this)">HOME</button><button onclick="show('workout',this)">WORKOUT</button><button onclick="show('progress',this)">PROGRESS</button></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const habits=[
+["sleep","8+ HOURS SLEEP","Recovery",20],
+["water","DRINK YOUR WATER","Hydration",15],
+["protein","GOOD PROTEIN INTAKE","Nutrition",20],
+["movement","DAILY MOVEMENT","Activity",15],
+["stretch","5 MINUTES STRETCHING","Recovery",10],
+["screen","CONTROL SCREEN TIME","Discipline",15]
+];
+const exercises=["Goblet squat","Dumbbell Romanian deadlift","Dumbbell chest press","One-arm dumbbell row","Dumbbell shoulder press","Standing calf raise"];
+let data=JSON.parse(localStorage.getItem("lockin2")||'{"total":0,"done":{},"days":0,"best":0}');
+function date(){return new Date().toISOString().slice(0,10)}
+function save(){localStorage.setItem("lockin2",JSON.stringify(data));render()}
+function toast(t){let x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1300)}
+function toggle(id){
+ let k=date();data.done[k]??={};let before=!!data.done[k][id], h=habits.find(x=>x[0]===id);
+ data.done[k][id]=!before;data.total+=before?-h[3]:h[3];
+ if(!before && Object.values(data.done[k]).filter(Boolean).length===1){data.days++;data.best=Math.max(data.best,data.days)}
+ if(before && Object.values(data.done[k]).filter(Boolean).length===0)data.days=Math.max(0,data.days-1);
+ save();if(!before)toast("+"+h[3]+" XP");
+}
+function render(){
+ let k=date(),today=data.done[k]||{},earned=0;
+ document.getElementById("habits").innerHTML=habits.map(([id,n,d,x])=>{let done=!!today[id];if(done)earned+=x;return `<div class="habit ${done?'done':''}" onclick="toggle('${id}')"><div class="check"></div><div><b>${n}</b><span>${d} · +${x} XP</span></div></div>`}).join("");
+ let lvl=Math.floor(data.total/250)+1,base=(lvl-1)*250,p=Math.min(100,(data.total-base)/250*100);
+ document.getElementById("xp").textContent=earned+" XP";document.getElementById("xpbar").style.width=p+"%";document.getElementById("next").textContent=(data.total-base)+" / 250 XP";document.getElementById("pct").textContent=Math.round(p)+"%";
+ document.getElementById("level").textContent="LEVEL "+lvl;document.getElementById("streak").textContent=data.days;
+ let r=data.total>=5000?"S":data.total>=3000?"A":data.total>=1500?"B":data.total>=500?"C":"D";
+ document.getElementById("rank").textContent=r;document.getElementById("week").textContent=Math.min(100,Math.round(earned/95*100))+"%";
+ document.getElementById("totalxp").textContent=data.total;document.getElementById("progrank").textContent="Rank "+r;document.getElementById("best").textContent=data.best;document.getElementById("level2").textContent=lvl;
+ document.getElementById("completed").textContent=Object.values(data.done).reduce((a,d)=>a+Object.values(d).filter(Boolean).length,0);
+ let now=new Date(),day=now.getDay(), names=["SUN","MON","TUE","WED","THU","FRI","SAT"];document.getElementById("days").innerHTML=[1,2,3,4,5,6,0].map(i=>{let d=new Date(now);let diff=(i-day+7)%7;d.setDate(now.getDate()+diff);return `<div class="${i===day?'today':''}"><b>${names[i]}</b>${d.getDate()}</div>`}).join("");
+}
+function finishWorkout(){let k=date();data.done[k]??={};if(!data.done[k].workout){data.done[k].workout=true;data.total+=50;save();toast("+50 XP · WORKOUT COMPLETE") }else toast("Workout already logged")}
+function show(id,btn){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
+function resetAll(){if(confirm("Reset all progress?")){localStorage.removeItem("lockin2");location.reload()}}
+document.getElementById("exercises").innerHTML=exercises.map((x,i)=>`<div class="exercise" onclick="this.classList.toggle('done')"><div class="num">${i+1}</div><div><b>${x}</b><span>3 sets · comfortable, controlled reps</span></div></div>`).join("");
+render();
+</script>
+</body>
+</html>
